@@ -79,7 +79,6 @@ enum HeartbeatError: Error {
 struct Bucket: Codable {
   var client: String
   var type: String
-  var hostname: String
 }
 
 // there's no builtin logging library on macos which has levels & hits stdout, so we build our own simple one
@@ -120,9 +119,8 @@ func error(_ msg: String) {
 // Placeholder values, set in start() from CLI arguments
 var baseurl = "http://localhost:5600"
 // NOTE: this differs from the hostname we get from Python, here we get `.local`, but in Python we get `.localdomain`
-var clientHostname = ProcessInfo.processInfo.hostName
 var clientName = "aw-watcher-window"
-var bucketName = "\(clientName)_\(clientHostname)"
+var bucketName = "\(clientName)"
 
 let main = MainThing()
 var oldHeartbeat: Heartbeat?
@@ -156,7 +154,6 @@ func start() {
 
   baseurl = arguments[1]
   bucketName = arguments[2]
-  clientHostname = arguments[3]
   clientName = arguments[4]
 
   guard checkAccess() else {
@@ -185,7 +182,7 @@ func start() {
 // TODO might be better to have the python wrapper create this before launching the swift application
 func createBucket() {
   let payload = try! encoder.encode(
-    Bucket(client: clientName, type: "currentwindow", hostname: clientHostname))
+    Bucket(client: clientName, type: "currentwindow"))
 
   let url = URL(string: "\(baseurl)/api/0/buckets/\(bucketName)")!
   Task {
