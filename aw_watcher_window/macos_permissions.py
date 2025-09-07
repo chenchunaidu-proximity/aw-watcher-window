@@ -24,7 +24,7 @@ def ensure_permissions() -> None:
     if not accessibility_permissions:
         logger.info("No accessibility permissions, prompting user")
         title = "Missing accessibility permissions"
-        info = "To let ActivityWatch capture window titles grant it accessibility permissions. \n If you've already given ActivityWatch accessibility permissions and are still seeing this dialog, try removing and re-adding them."
+        info = "To let Samay capture window titles grant it accessibility permissions. \n If you've already given Samay accessibility permissions and are still seeing this dialog, try removing and re-adding them."
 
         alert = NSAlert.new()
         alert.setMessageText_(title)
