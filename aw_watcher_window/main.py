@@ -112,6 +112,8 @@ def main():
 def heartbeat_loop(
     client, bucket_id, poll_time, strategy, exclude_title=False, exclude_titles=[]
 ):
+    consecutive_errors = 0
+    
     while True:
         if os.getppid() == 1:
             logger.info("window-watcher stopped because parent process died")
@@ -121,24 +123,24 @@ def heartbeat_loop(
         try:
             current_window = get_current_window(strategy)
             logger.debug(current_window)
+            consecutive_errors = 0
         except (FatalError, OSError):
-            # Fatal exceptions should quit the program
+            consecutive_errors += 1
             try:
                 logger.exception("Fatal error, stopping")
             except OSError:
                 pass
-            break
+            if consecutive_errors >= 3:
+                break
+            sleep(poll_time)
+            continue
         except Exception:
-            # Non-fatal exceptions should be logged
+            consecutive_errors += 1
             try:
-                # If stdout has been closed, this exception-print can cause (I think)
-                #   OSError: [Errno 5] Input/output error
-                # See: https://github.com/ActivityWatch/activitywatch/issues/756#issue-1296352264
-                #
-                # However, I'm unable to reproduce the OSError in a test (where I close stdout before logging),
-                # so I'm in uncharted waters here... but this solution should work.
                 logger.exception("Exception thrown while trying to get active window")
             except OSError:
+                break
+            if consecutive_errors >= 5:
                 break
 
         if current_window is None:

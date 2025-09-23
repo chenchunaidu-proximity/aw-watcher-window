@@ -22,16 +22,15 @@ def ensure_permissions() -> None:
 
     accessibility_permissions = AXIsProcessTrusted()
     if not accessibility_permissions:
-        logger.info("No accessibility permissions, prompting user")
-        title = "Missing accessibility permissions"
-        info = "To let Samay capture window titles grant it accessibility permissions. \n If you've already given Samay accessibility permissions and are still seeing this dialog, try removing and re-adding them."
+        title = "Samay Needs Accessibility Permissions"
+        info = "Please enable accessibility permissions in System Settings to track window activity."
 
         alert = NSAlert.new()
         alert.setMessageText_(title)
         alert.setInformativeText_(info)
 
-        alert.addButtonWithTitle_("Open accessibility settings")
-        alert.addButtonWithTitle_("Close")
+        alert.addButtonWithTitle_("Open System Settings")
+        alert.addButtonWithTitle_("Continue")
 
         choice = alert.runModal()
         if choice == NSAlertFirstButtonReturn:
