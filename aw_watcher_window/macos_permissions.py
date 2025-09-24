@@ -21,7 +21,10 @@ def ensure_permissions() -> None:
     from ApplicationServices import AXIsProcessTrusted  # fmt: skip
 
     accessibility_permissions = AXIsProcessTrusted()
+    logger.info(f"===>> Accessibility permissions status: {accessibility_permissions}")
+    
     if not accessibility_permissions:
+        logger.warning("===>> No accessibility permissions detected, prompting user")
         title = "Samay Needs Accessibility Permissions"
         info = "Please enable accessibility permissions in System Settings to track window activity."
 
@@ -34,8 +37,13 @@ def ensure_permissions() -> None:
 
         choice = alert.runModal()
         if choice == NSAlertFirstButtonReturn:
+            logger.info("===>> User chose to open System Settings")
             NSWorkspace.sharedWorkspace().openURL_(
                 NSURL.URLWithString_(
                     "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
                 )
             )
+        else:
+            logger.info("===>> User chose to continue without permissions")
+    else:
+        logger.info("===>> Accessibility permissions are already granted")
