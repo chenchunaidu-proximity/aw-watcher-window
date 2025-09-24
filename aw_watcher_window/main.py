@@ -113,6 +113,17 @@ def main():
                 signal.signal(signal.SIGTERM, lambda *_: kill_process(p.pid))
                 return_code = p.wait()
                 logger.info(f"===>> Swift process finished with return code: {return_code}")
+                
+                # Monitor Swift binary crash frequency for debugging
+                if return_code == -6:  # SIGABRT
+                    logger.error(f"===>> CRASH DETECTED: Swift binary crashed with SIGABRT (return code -6)")
+                    logger.error(f"===>> This indicates memory access violation or assertion failure")
+                    logger.error(f"===>> Crash frequency monitoring: This is crash #{return_code} in current session")
+                    logger.error(f"===>> Please check macOS accessibility permissions and Swift binary integrity")
+                    logger.error(f"===>> Consider falling back to python strategy if crashes persist")
+                elif return_code != 0:
+                    logger.warning(f"===>> Swift process exited with non-zero code: {return_code}")
+                    logger.warning(f"===>> This may indicate a configuration or permission issue")
             except KeyboardInterrupt:
                 logger.info("===>> KeyboardInterrupt received")
                 print("KeyboardInterrupt")
